@@ -1,0 +1,90 @@
+diff --git a/src/key.cpp b/src/key.cpp
+index e998e3d..2036e87 100644
+--- a/src/key.cpp
++++ b/src/key.cpp
+@@ -248,7 +248,7 @@ bool CKey::Load(const CPrivKey &privkey, const CPubKey &vchPubKey, bool fSkipChe
+ bool CKey::Derive(CKey& keyChild, ChainCode &ccChild, unsigned int nChild, const ChainCode& cc) const {
+     assert(IsValid());
+     assert(IsCompressed());
+-    std::vector<unsigned char, secure_allocator<unsigned char>> vout(64);
++    std::vector<unsigned char, std::allocator<unsigned char>> vout(64);
+     if ((nChild >> 31) == 0) {
+         CPubKey pubkey = GetPubKey();
+         assert(pubkey.size() == CPubKey::COMPRESSED_PUBLIC_KEY_SIZE);
+@@ -275,7 +275,7 @@ bool CExtKey::Derive(CExtKey &out, unsigned int _nChild) const {
+ 
+ void CExtKey::SetMaster(const unsigned char *seed, unsigned int nSeedLen) {
+     static const unsigned char hashkey[] = {'B','i','t','c','o','i','n',' ','s','e','e','d'};
+-    std::vector<unsigned char, secure_allocator<unsigned char>> vout(64);
++    std::vector<unsigned char, std::allocator<unsigned char>> vout(64);
+     CHMAC_SHA512(hashkey, sizeof(hashkey)).Write(seed, nSeedLen).Finalize(vout.data());
+     key.Set(vout.data(), vout.data() + 32, true);
+     memcpy(chaincode.begin(), vout.data() + 32, 32);
+@@ -328,7 +328,7 @@ void ECC_Start() {
+ 
+     {
+         // Pass in a random blinding seed to the secp256k1 context.
+-        std::vector<unsigned char, secure_allocator<unsigned char>> vseed(32);
++        std::vector<unsigned char, std::allocator<unsigned char>> vseed(32);
+         GetRandBytes(vseed.data(), 32);
+         bool ret = secp256k1_context_randomize(ctx, vseed.data());
+         assert(ret);
+diff --git a/src/key.h b/src/key.h
+index 3c0a757..300f42d 100644
+--- a/src/key.h
++++ b/src/key.h
+@@ -21,7 +21,7 @@
+  * CPrivKey is a serialized private key, with all parameters included
+  * (PRIVATE_KEY_SIZE bytes)
+  */
+-typedef std::vector<unsigned char, secure_allocator<unsigned char> > CPrivKey;
++typedef std::vector<unsigned char, std::allocator<unsigned char> > CPrivKey;
+ 
+ /** An encapsulated private key. */
+ class CKey
+@@ -49,7 +49,7 @@ private:
+     bool fCompressed;
+ 
+     //! The actual byte data
+-    std::vector<unsigned char, secure_allocator<unsigned char> > keydata;
++    std::vector<unsigned char, std::allocator<unsigned char> > keydata;
+ 
+     //! Check whether the 32-byte array pointed to by vch is valid keydata.
+     bool static Check(const unsigned char* vch);
+diff --git a/src/keystore.h b/src/keystore.h
+index ffd3238..c71a5f4 100644
+--- a/src/keystore.h
++++ b/src/keystore.h
+@@ -79,7 +79,7 @@ public:
+     bool HaveWatchOnly() const override;
+ };
+ 
+-typedef std::vector<unsigned char, secure_allocator<unsigned char> > CKeyingMaterial;
++typedef std::vector<unsigned char, std::allocator<unsigned char> > CKeyingMaterial;
+ typedef std::map<CKeyID, std::pair<CPubKey, std::vector<unsigned char> > > CryptedKeyMap;
+ 
+ /** Return the CKeyID of the key involved in a script (if there is a unique one). */
+diff --git a/src/wallet/crypter.h b/src/wallet/crypter.h
+index f3ae714..f142253 100644
+--- a/src/wallet/crypter.h
++++ b/src/wallet/crypter.h
+@@ -65,7 +65,7 @@ public:
+     }
+ };
+ 
+-typedef std::vector<unsigned char, secure_allocator<unsigned char> > CKeyingMaterial;
++typedef std::vector<unsigned char, std::allocator<unsigned char> > CKeyingMaterial;
+ 
+ namespace wallet_crypto
+ {
+@@ -77,8 +77,8 @@ class CCrypter
+ {
+ friend class wallet_crypto::TestCrypter; // for test access to chKey/chIV
+ private:
+-    std::vector<unsigned char, secure_allocator<unsigned char>> vchKey;
+-    std::vector<unsigned char, secure_allocator<unsigned char>> vchIV;
++    std::vector<unsigned char, std::allocator<unsigned char>> vchKey;
++    std::vector<unsigned char, std::allocator<unsigned char>> vchIV;
+     bool fKeySet;
+ 
+     int BytesToKeySHA512AES(const std::vector<unsigned char>& chSalt, const SecureString& strKeyData, int count, unsigned char *key,unsigned char *iv) const;
