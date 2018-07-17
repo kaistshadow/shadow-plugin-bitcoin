@@ -33,18 +33,20 @@
 
   <!-- the plug-ins we will be using -->
   <plugin id="bitcoind" path="libBITCOIND.so" />
+  <plugin id="injector-bitcoin" path="libshadow-injector-bitcoin.so" />
 
   <!-- the length of our experiment in seconds  1404101800-->
-  <kill time="20" />
+  <kill time="60" />
   <!-- our nodes -->
 
   <node id="bcdnode1">
-    <application plugin="bitcoind" time="13" arguments="-datadir=./data/bcdnode1 -debug -printtoconsole -connect=bcdnode2 -listen -disablewallet=1 -server=0" />
+    <application plugin="bitcoind" time="13" arguments="-regtest -datadir=./data/bcdnode1 -debug -printtoconsole -connect=bcdnode2 -listen -server=0" />
+    <application plugin="injector-bitcoin" time="15" arguments="bcdnode1" />
   </node>
 
 
   <node id="bcdnode2">
-    <application plugin="bitcoind" time="13" arguments="-datadir=./data/bcdnode2 -debug -printtoconsole -listen -connect=bcdnode1 -disablewallet=1 -server=0"/>
+    <application plugin="bitcoind" time="13" arguments="-regtest -datadir=./data/bcdnode2 -debug -printtoconsole -listen -connect=bcdnode1 -server=0"/>
   </node>
 
 </shadow>
