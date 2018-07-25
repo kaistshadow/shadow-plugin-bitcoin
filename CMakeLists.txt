@@ -263,8 +263,8 @@ SET(LDFLAGS "-L${BITCOIN_ROOT_DIR}/../bdb/db-4.8.30.NC/build_unix/build/lib/ -L$
 # SET(BDB_LIBS "-ldb_cxx-4.8")
 SET(BDB_LIBS "${BITCOIN_ROOT_DIR}/../bdb/db-4.8.30.NC/build_unix/build/lib/libdb_cxx-4.8.a")
 
-add_executable(BITCOIND ${BITCOIN_ROOT_DIR}/src/bitcoind.cpp)
-# add_shadow_plugin(BITCOIND ${BITCOIN_ROOT_DIR}/src/bitcoind.cpp)
+# add_executable(BITCOIND ${BITCOIN_ROOT_DIR}/src/bitcoind.cpp)
+add_shadow_plugin(BITCOIND ${BITCOIN_ROOT_DIR}/src/bitcoind.cpp)
 install(TARGETS BITCOIND DESTINATION plugins)
 install(TARGETS LIBBITCOIN_SERVER DESTINATION lib)
 install(TARGETS LIBBITCOIN_COMMON DESTINATION lib)
