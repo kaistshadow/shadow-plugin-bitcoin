@@ -24,37 +24,37 @@ cd glib-2.42.1
 ./configure --prefix=~/.shadow
 make
 make install
+
+```
+
+# Bitcoin Dependencies
+
+Please install dependencies for bitcoin.
+```
+sudo apt-get install -y autoconf libtool libboost-all-dev libssl-dev libevent-dev
 ```
 
 # Setup plug-in and custom build requirements
 
 After installing the shadow simulator, you will need to install Shadow plug-in for Bitcoin.
-We will build from the `build` directory:
-
 ```
 git clone https://github.com/shadow/shadow-plugin-bitcoin.git
 cd shadow-plugin-bitcoin
-mkdir build; cd build
 ```
 
 You will also need to clone and customize the recent bitcoin sources (v0.16.0).
+You can install customized bitcoin sources using git submodule.
 
 ```
-sudo apt-get install -y autoconf libtool libboost-all-dev libssl-dev libevent-dev
-git clone https://github.com/bitcoin/bitcoin.git
-cd bitcoin
-git checkout v0.16.0
-./autogen.sh
-./configure --disable-wallet
-make -C src obj/build.h
-make -C src/secp256k1 src/ecmult_static_context.h
-git apply ../../DisableSanityCheck.patch
-cd ..
+git submodule init
+git submodule update
 ```
 
 Now we are ready to build the actual Shadow plug-in using cmake.
+We will build from the `build` directory:
 
 ```
+mkdir build; cd build
 cmake ../
 make -jN
 make install
