@@ -1,0 +1,3 @@
+[submodule "build/bitcoin"]
+	path = build/bitcoin
+	url = https://github.com/kaistshadow/bitcoin

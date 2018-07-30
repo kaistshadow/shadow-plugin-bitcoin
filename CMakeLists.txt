@@ -136,7 +136,8 @@ SET(LIBBITCOIN_UTIL_SRCS
   ${BITCOIN_ROOT_DIR}/src/util.cpp
   ${BITCOIN_ROOT_DIR}/src/utilmoneystr.cpp
   ${BITCOIN_ROOT_DIR}/src/utilstrencodings.cpp
-  ${BITCOIN_ROOT_DIR}/src/utiltime.cpp)
+  ${BITCOIN_ROOT_DIR}/src/utiltime.cpp
+)
 
 SET(LIBBITCOIN_CONSENSUS_SRCS
   ${BITCOIN_ROOT_DIR}/src/arith_uint256.cpp
@@ -218,13 +219,15 @@ add_library(LIBUNIVALUE SHARED
   ${BITCOIN_ROOT_DIR}/src/univalue/lib/univalue_get.cpp
   ${BITCOIN_ROOT_DIR}/src/univalue/lib/univalue_read.cpp
   ${BITCOIN_ROOT_DIR}/src/univalue/lib/univalue_write.cpp)
-add_library(LIBBITCOIN_UTIL SHARED ${LIBBITCOIN_UTIL_SRCS})
+add_library(LIBBITCOIN_UTIL SHARED ${LIBBITCOIN_UTIL_SRCS}
+  ${BITCOIN_ROOT_DIR}/src/obj/build.h)
 add_library(LIBBITCOIN_CONSENSUS SHARED ${LIBBITCOIN_CONSENSUS_SRCS})
 add_library(LIBBITCOIN_CRYPTO SHARED ${LIBBITCOIN_CRYPTO_SRCS})
 add_library(LIBLEVELDB_INT SHARED ${LIBLEVELDB_INT_SRCS})
 add_library(LIBLEVELDB_SSE42 SHARED ${LIBLEVELDB_SSE42_SRCS})
 add_library(LIBMEMENV SHARED ${LIBMEMENV_SRCS})
-add_library(LIBSECP256K1 SHARED ${BITCOIN_ROOT_DIR}/src/secp256k1/src/secp256k1.c)
+add_library(LIBSECP256K1 SHARED ${BITCOIN_ROOT_DIR}/src/secp256k1/src/secp256k1.c
+  ${BITCOIN_ROOT_DIR}/src/secp256k1/src/ecmult_static_context.h)
 
 
 
@@ -262,6 +265,17 @@ SET(BITCOIN_LDFLAGS "-pthread -Wl,-z,relro -Wl,-z,now")
 SET(LDFLAGS "-L${BITCOIN_ROOT_DIR}/../bdb/db-4.8.30.NC/build_unix/build/lib/ -L${BITCOIN_ROOT_DIR}/../")
 # SET(BDB_LIBS "-ldb_cxx-4.8")
 SET(BDB_LIBS "${BITCOIN_ROOT_DIR}/../bdb/db-4.8.30.NC/build_unix/build/lib/libdb_cxx-4.8.a")
+
+execute_process(COMMAND ./autogen.sh
+  WORKING_DIRECTORY ${BITCOIN_ROOT_DIR})
+execute_process(COMMAND ./configure --disable-wallet
+  WORKING_DIRECTORY ${BITCOIN_ROOT_DIR})
+add_custom_command(OUTPUT ${BITCOIN_ROOT_DIR}/src/obj/build.h
+  COMMAND make -C src obj/build.h
+  WORKING_DIRECTORY ${BITCOIN_ROOT_DIR})
+add_custom_command(OUTPUT ${BITCOIN_ROOT_DIR}/src/secp256k1/src/ecmult_static_context.h
+  COMMAND make -C src/secp256k1 src/ecmult_static_context.h
+  WORKING_DIRECTORY ${BITCOIN_ROOT_DIR})
 
 # add_executable(BITCOIND ${BITCOIN_ROOT_DIR}/src/bitcoind.cpp)
 add_shadow_plugin(BITCOIND ${BITCOIN_ROOT_DIR}/src/bitcoind.cpp)
