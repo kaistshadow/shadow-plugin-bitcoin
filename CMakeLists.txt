@@ -22,11 +22,11 @@ get_filename_component(BITCOIN_ROOT_DIR "${CMAKE_SOURCE_DIR}/build/bitcoin" ABSO
 if("${SHADOW_ROOT}" STREQUAL "")
     set(SHADOW_ROOT "$ENV{HOME}/.shadow")
 endif()
-if(EXISTS "${SHADOW_ROOT}")
-    message(STATUS "SHADOW_ROOT = ${SHADOW_ROOT}")
-else()
-    message(FATAL_ERROR "SHADOW_ROOT path does not exist: '${SHADOW_ROOT}'")
-endif()
+# if(EXISTS "${SHADOW_ROOT}")
+#     message(STATUS "SHADOW_ROOT = ${SHADOW_ROOT}")
+# else()
+#     message(FATAL_ERROR "SHADOW_ROOT path does not exist: '${SHADOW_ROOT}'")
+# endif()
 
 ## by default, install to SHADOW_ROOT
 if(NOT ${CMAKE_INSTALL_PREFIX})
@@ -37,13 +37,15 @@ if(EXISTS "${SHADOW_ROOT}/share/cmake/Modules")
     set(CMAKE_MODULE_PATH "${SHADOW_ROOT}/share/cmake/Modules" ${CMAKE_MODULE_PATH})
 endif()
 
-include(ShadowTools)
+
 
 message(STATUS "CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
 message(STATUS "CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
 message(STATUS "CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR}")
 message(STATUS "BITCOIN_ROOT_DIR = ${BITCOIN_ROOT_DIR}")
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}")
 
+include(ShadowTools)
 find_package(RT REQUIRED)
 find_package(DL REQUIRED)
 find_package(GLIB REQUIRED)
@@ -266,16 +268,30 @@ SET(LDFLAGS "-L${BITCOIN_ROOT_DIR}/../bdb/db-4.8.30.NC/build_unix/build/lib/ -L$
 # SET(BDB_LIBS "-ldb_cxx-4.8")
 SET(BDB_LIBS "${BITCOIN_ROOT_DIR}/../bdb/db-4.8.30.NC/build_unix/build/lib/libdb_cxx-4.8.a")
 
-execute_process(COMMAND ./autogen.sh
+
+add_custom_command(
+  OUTPUT "${BITCOIN_ROOT_DIR}/src/config/bitcoin-config.h"
+  COMMAND ./autogen.sh
+  COMMAND ./configure --disable-wallet
   WORKING_DIRECTORY ${BITCOIN_ROOT_DIR})
-execute_process(COMMAND ./configure --disable-wallet
-  WORKING_DIRECTORY ${BITCOIN_ROOT_DIR})
+
+add_custom_target(
+  BITCOIN_REPO_CONF ALL
+  DEPENDS "${BITCOIN_ROOT_DIR}/src/config/bitcoin-config.h")
+
+add_dependencies(LIBBITCOIN_COMMON BITCOIN_REPO_CONF)
+add_dependencies(LIBBITCOIN_SERVER BITCOIN_REPO_CONF)
+add_dependencies(LIBBITCOIN_CRYPTO BITCOIN_REPO_CONF)
+add_dependencies(LIBBITCOIN_CONSENSUS BITCOIN_REPO_CONF)
+  
 add_custom_command(OUTPUT ${BITCOIN_ROOT_DIR}/src/obj/build.h
   COMMAND make -C src obj/build.h
-  WORKING_DIRECTORY ${BITCOIN_ROOT_DIR})
+  WORKING_DIRECTORY ${BITCOIN_ROOT_DIR}
+  DEPENDS BITCOIN_REPO_CONF)
 add_custom_command(OUTPUT ${BITCOIN_ROOT_DIR}/src/secp256k1/src/ecmult_static_context.h
   COMMAND make -C src/secp256k1 src/ecmult_static_context.h
-  WORKING_DIRECTORY ${BITCOIN_ROOT_DIR})
+  WORKING_DIRECTORY ${BITCOIN_ROOT_DIR}
+  DEPENDS BITCOIN_REPO_CONF)
 
 # add_executable(BITCOIND ${BITCOIN_ROOT_DIR}/src/bitcoind.cpp)
 add_shadow_plugin(BITCOIND ${BITCOIN_ROOT_DIR}/src/bitcoind.cpp)
