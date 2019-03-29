@@ -16,7 +16,7 @@ endif()
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-get_filename_component(BITCOIN_ROOT_DIR "${CMAKE_SOURCE_DIR}/build/bitcoin" ABSOLUTE)
+get_filename_component(BITCOIN_ROOT_DIR "${PROJECT_SOURCE_DIR}/build/bitcoin" ABSOLUTE)
 
 ## we need to know where shadow is installed
 if("${SHADOW_ROOT}" STREQUAL "")
@@ -42,6 +42,8 @@ endif()
 message(STATUS "CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
 message(STATUS "CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
 message(STATUS "CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR}")
+message(STATUS "PROJECT_SOURCE_DIR = ${PROJECT_SOURCE_DIR}")
+message(STATUS "PROJECT_BINARY_DIR = ${PROJECT_BINARY_DIR}")
 message(STATUS "BITCOIN_ROOT_DIR = ${BITCOIN_ROOT_DIR}")
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}")
 
